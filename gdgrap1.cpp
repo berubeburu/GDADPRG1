@@ -10,9 +10,9 @@
 #include "tiny_obj_loader.h"
 
 // modifier for the model's x position
-float x_mod = 0;
+float x_mod = -2.f;;
 // modifier for the model's y position
-float y_mod = 0;
+float y_mod = -2.f;;
 // modifier for the model's z position
 float z_mod = -2.f;
 
@@ -54,7 +54,7 @@ int main(void)
 {
     glm::mat4 identity_matrix = glm::mat4(1.0f);
 
-    float x = 0, y = 0, z = 0, scale_x = 1, scale_y = 1, scale_z = 1, theta = 90, axis_x = 0, axis_y = 1, axis_z = 0;
+    float x = 0, y = 0, z = 0, scale_x = 1.5, scale_y = 1.5, scale_z = 1.5, theta = 0, axis_x = 0, axis_y = 0, axis_z = 1;
 
     GLFWwindow* window;
 
@@ -77,10 +77,10 @@ int main(void)
     glfwMakeContextCurrent(window);
     gladLoadGL();
 
-    //glViewport(0, 0, 300, 600);
+    glViewport(0, 0, window_width, window_height);
 
     // set the callback function to the window
-    glfwSetKeyCallback(window, Key_CallBack);
+    //glfwSetKeyCallback(window, Key_CallBack);
 
     // load the shader file into a string stream        vertex
     fstream vertSrc("Shaders/sample.vert");
@@ -147,7 +147,7 @@ int main(void)
     string warning, error;
 
     tinyobj::attrib_t attributes;
-    
+
     bool success = tinyobj::LoadObj(
         &attributes,
         &shapes,
@@ -165,7 +165,7 @@ int main(void)
         );
     }
 
-    GLfloat vertices[] {
+    GLfloat vertices[]{
         //x    y   z
         0.f, 0.5f, 0.f, // 0
         -0.5f, -0.5f, 0.f, // 1
@@ -241,6 +241,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         z = z_mod;
+        theta += 0.04;
 
         // Start with the translation matrix
         glm::mat4 transformation_matrix = glm::translate(
