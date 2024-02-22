@@ -20,7 +20,7 @@ float z_mod = -2.f;
 // modifier for the model's theta
 float theta_mod = 0;
 // modifier for the model's x axis
-float axis_x_mod = 0;
+float axis_x_mod = 1;
 // modifier for the model's y axis
 float axis_y_mod = 0;
 // modifier for the model's x scale
@@ -112,7 +112,7 @@ int main(void)
 {
     glm::mat4 identity_matrix = glm::mat4(1.0f);
 
-    float x = 0, y = 0, z = 0, scale_x = 1, scale_y = 1, scale_z = 1, theta = 0, axis_x = 0, axis_y = 0, axis_z = 1;
+    float x = 0, y = 0, z = 0, scale_x = 0.5, scale_y = 0.5, scale_z = 0.5, theta = 0, axis_x = 1, axis_y = 0, axis_z = 0;
 
     GLFWwindow* window;
 
@@ -146,7 +146,7 @@ int main(void)
 
     // load the texture and fill out the variables
     unsigned char* tex_bytes =
-        stbi_load("3D/ayaya.png", // texture path
+        stbi_load("3D/partenza.jpg", // texture path
             &img_width, // fills out the width
             &img_height, // fills out the height
             &colorChannels,// fills out the color channel
@@ -164,11 +164,11 @@ int main(void)
     // assign the loaded texture to the OpenGL reference
     glTexImage2D(GL_TEXTURE_2D,
         0, // texture 0
-        GL_RGBA, // target color format of the texture
+        GL_RGB, // target color format of the texture
         img_width, // texture width
         img_height, // texture height
         0,
-        GL_RGBA, // color format of the texture
+        GL_RGB, // color format of the texture
         GL_UNSIGNED_BYTE,
         tex_bytes); // loaded texture in bytes
 
@@ -242,7 +242,7 @@ int main(void)
     // finalize the compilation process
     glLinkProgram(shaderProg);
 
-    string path = "3D/myCube.obj";
+    string path = "3D/djSword.obj";
     vector<tinyobj::shape_t> shapes;
     vector<tinyobj::material_t> material;
     string warning, error;
@@ -277,6 +277,34 @@ int main(void)
         );
     }
 
+    // initialize the array of vertex data
+    vector<GLfloat> fullVertexData;
+    // loop through all the vertex indices
+    for (int i = 0; i < shapes[0].mesh.indices.size(); i++) {
+        tinyobj::index_t vData = shapes[0].mesh.indices[i];
+
+        // push the X position of the vertex
+        // multiply by 3 to get base offset
+        fullVertexData.push_back(attributes.vertices[(vData.vertex_index * 3)]);
+        // push the Y position of the vertex
+        fullVertexData.push_back(attributes.vertices[(vData.vertex_index * 3) + 1]);
+        // push the Z position of the vertex
+        fullVertexData.push_back(attributes.vertices[(vData.vertex_index * 3) + 2]);
+
+        // push the X position of normal
+        // multiply by 3 to get base offset
+        fullVertexData.push_back(attributes.normals[(vData.normal_index * 3)]);
+        // push the Y position of normal
+        fullVertexData.push_back(attributes.normals[(vData.normal_index * 3) + 1]);
+        // push the Z position of normal
+        fullVertexData.push_back(attributes.normals[(vData.normal_index * 3) + 2]);
+
+        // push the U of the tex coords
+        fullVertexData.push_back(attributes.texcoords[(vData.texcoord_index * 2)]);
+        // push the V of the tex coords
+        fullVertexData.push_back(attributes.texcoords[(vData.texcoord_index * 2) + 1]);
+    }
+
     GLfloat vertices[]{
         //x    y   z
         0.f, 0.5f, 0.f, // 0
@@ -291,15 +319,58 @@ int main(void)
     GLuint VAO, VBO, EBO, VBO_UV;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glGenBuffers(1, &VBO_UV);
+    //glGenBuffers(1, &EBO);
+    //glGenBuffers(1, &VBO_UV);
 
     // currently editing VAO = null
     glBindVertexArray(VAO);
     // currently editing VBO = null
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER,
+    // new array of vertex data in the VBO
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(GLfloat)* fullVertexData.size(), // size of the whole array in bytes
+        fullVertexData.data(), // data of the array
+        GL_DYNAMIC_DRAW
+    );
+    // how to get position data from our array
+    glVertexAttribPointer(
+        0,  // index 0 is vertex position
+        3,  // position is 3 floats (x, y, z)
+        GL_FLOAT,   // data type of array
+        GL_FALSE,
+        8 * sizeof(float),
+        (void*)0
+    );
+
+    // since our UV starts at index 3, or the 4th index of our vertex data
+    GLintptr normPtr = 3 * sizeof(float);
+
+    // how to get normals data from our array
+    glVertexAttribPointer(
+        2,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        8 * sizeof(float),  // vertex data has 5 floats in it (x, y, z, u, v)
+        (void*)normPtr    // offset
+    );
+
+    // since our UV starts at index 3, or the 4th index of our vertex data
+    GLintptr uvPtr = 7 * sizeof(float);
+
+    // how to get UV data from our array
+    glVertexAttribPointer(
+        6,  // index 2 is tex coords / UV
+        2,  // UV is 2 floats (u, v)
+        GL_FLOAT,   // data type of array
+        GL_FALSE,
+        8 * sizeof(float),  // vertex data has 5 floats in it (x, y, z, u, v)
+        (void*)uvPtr    // offset
+    );
+
+    /*glBufferData(GL_ARRAY_BUFFER,
         sizeof(GL_FLOAT) * attributes.vertices.size(),
         &attributes.vertices[0], // attributes.vertices.data()
         GL_STATIC_DRAW);
@@ -319,14 +390,14 @@ int main(void)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
         sizeof(GLuint) * mesh_indices.size(),
         &mesh_indices[0], // mesh_indices.data()
-        GL_STATIC_DRAW);
+        GL_STATIC_DRAW);*/
 
     glEnableVertexAttribArray(0);
 
     // bind the UV buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_UV);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO_UV);
 
-    glBufferData(GL_ARRAY_BUFFER,
+    /*glBufferData(GL_ARRAY_BUFFER,
         sizeof(GLfloat) * (sizeof(UV) / sizeof(UV[0])), // float * size of the UV array
         &UV[0], // the UV array earlier
         GL_DYNAMIC_DRAW);
@@ -338,7 +409,7 @@ int main(void)
         GL_FALSE,
         2 * sizeof(float), // every 2 index
         (void*)0
-    );
+    );*/
 
     // enable 2 
     glEnableVertexAttribArray(2);
@@ -361,7 +432,7 @@ int main(void)
     );*/
 
     glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(60.f), // FOV
+        glm::radians(120.f), // FOV
         window_height / window_width, // aspect ratio
         0.1f, // znear > 0
         100.f // zfar
@@ -408,6 +479,15 @@ int main(void)
     //glm::mat4 viewMatrix = cameraOrientation * cameraPositionMatrix;
     glm::mat4 viewMatrix = glm::lookAt(cameraPos, Center, WorldUp);
 
+    glm::vec3 lightPos = glm::vec3(-10, 3, 0);
+    glm::vec3 lightColor = glm::vec3(1, 1, 1);
+
+    float ambientStr = 0.1f;
+    glm::vec3 ambientColor = lightColor;
+
+    float specStr = -0.5f;
+    float specPhong = 0.0f;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -428,13 +508,11 @@ int main(void)
             identity_matrix,
             glm::vec3(x, y, z)
         );
-
         // multiply the resulting matrix with the scale matrix
         transformation_matrix = glm::scale(
             transformation_matrix,
             glm::vec3(scale_x, scale_y, scale_z)
         );
-
         // finally multiply it with the rotation matrix
         transformation_matrix = glm::rotate(
             transformation_matrix,
@@ -445,9 +523,7 @@ int main(void)
         unsigned int projectionLoc = glGetUniformLocation(shaderProg, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-        // get the location of the transform variable in the shader
         unsigned int transformLoc = glGetUniformLocation(shaderProg, "transform");
-        // assign the matrix
         glUniformMatrix4fv(transformLoc, // address of the transform variable
             1, // how many matrices to assign
             GL_FALSE, // transpose
@@ -465,13 +541,33 @@ int main(void)
 
         // get the location of tex 0 in the fragment shader
         GLuint tex0Address = glGetUniformLocation(shaderProg, "tex0");
-        // tell openGL to use the texture
-        glBindTexture(GL_TEXTURE_2D, texture);
         // use the texture at 0
         glUniform1i(tex0Address, 0);
+        // tell openGL to use the texture
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        GLuint lightAddress = glGetUniformLocation(shaderProg, "lightPos");
+        glUniform3fv(lightAddress, 1, glm::value_ptr(lightPos));
+        GLuint lightColorAddress = glGetUniformLocation(shaderProg, "lightColor");
+        glUniform3fv(lightColorAddress, 1, glm::value_ptr(lightColor));
+
+        GLuint ambientStrAddress = glGetUniformLocation(shaderProg, "ambientStr");
+        glUniform1f(ambientStrAddress, ambientStr);
+        GLuint ambientColorAddress = glGetUniformLocation(shaderProg, "ambientColor");
+        glUniform3fv(ambientColorAddress, 1, glm::value_ptr(ambientColor));
+
+        GLuint cameraPosAddress = glGetUniformLocation(shaderProg, "cameraPos");
+        glUniform3fv(cameraPosAddress, 1, glm::value_ptr(cameraPos));
+        GLuint specStrAddress = glGetUniformLocation(shaderProg, "specStr");
+        glUniform1f(specStrAddress, specStr);
+        GLuint specPhongAddress = glGetUniformLocation(shaderProg, "specPhong");
+        glUniform1f(specPhongAddress, specPhong);
 
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, mesh_indices.size(), GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, mesh_indices.size(), GL_UNSIGNED_INT, 0);
+
+        // draw using uv
+        glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 8);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
