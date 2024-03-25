@@ -35,73 +35,61 @@ void Key_CallBack(GLFWwindow* window, // pointer to the window
     int mods) // which modifier keys is held down
 {
     // when user presses D
-    if (key == GLFW_KEY_D) {
-        // move bunny to right
+    if (key == GLFW_KEY_D) {  // move to right
         x_mod += 0.1f;
     }
     // when user presses A
-    if (key == GLFW_KEY_A) {
-        // move bunny to left
+    if (key == GLFW_KEY_A) {  // move to left
         x_mod -= 0.1f;
     }
     // when user presses S
-    if (key == GLFW_KEY_S) {
-        // move bunny down
+    if (key == GLFW_KEY_S) {  // move down
         y_mod -= 0.1f;
     }
     // when user presses W
-    if (key == GLFW_KEY_W) {
-        // move bunny up
+    if (key == GLFW_KEY_W) {  // move up
         y_mod += 0.1f;
     }
     // when user presses up
-    if (key == GLFW_KEY_UP) {
-        // rotate bunny up
+    if (key == GLFW_KEY_UP) {   // rotate up
         theta_mod -= 10;
         axis_x_mod = 1;
         axis_y_mod = 0;
     }
     // when user presses down
-    if (key == GLFW_KEY_DOWN) {
-        // rotate bunny down
+    if (key == GLFW_KEY_DOWN) { // rotate bunny down
         theta_mod += 10;
         axis_x_mod = 1;
         axis_y_mod = 0;
     }
     // when user presses left
-    if (key == GLFW_KEY_LEFT) {
-        // rotate bunny left
+    if (key == GLFW_KEY_LEFT) { // rotate bunny left
         theta_mod -= 10;
         axis_y_mod = 1;
         axis_x_mod = 0;
     }
     // when user presses right
-    if (key == GLFW_KEY_RIGHT) {
-        // rotate bunny right
+    if (key == GLFW_KEY_RIGHT) {    // rotate bunny right
         theta_mod += 10;
         axis_y_mod = 1;
         axis_x_mod = 0;
     }
     // when user presses Q
-    if (key == GLFW_KEY_Q) {
-        // decrease bunny
+    if (key == GLFW_KEY_Q) {    // decrease
         scale_x_mod -= 0.1f;
         scale_y_mod -= 0.1f;
     }
     // when user presses E
-    if (key == GLFW_KEY_E) {
-        // increase bunny
+    if (key == GLFW_KEY_E) {    // increase
         scale_x_mod += 0.1f;
         scale_y_mod += 0.1f;
     }
     // when user presses Z
-    if (key == GLFW_KEY_Z) {
-        // zoom in
+    if (key == GLFW_KEY_Z) {    // zoom in
         z_mod -= -0.1f;
     }
     // when user presses X
-    if (key == GLFW_KEY_X) {
-        // zoom out
+    if (key == GLFW_KEY_X) {    // zoom out
         z_mod += -0.1f;
     }
 }
@@ -110,23 +98,19 @@ using namespace std;
 
 int main(void)
 {
+    float x = 0, y = 3, z = 0, scale_x = 3, scale_y = 3, scale_z = 3, theta = 1, axis_x = 1, axis_y = 0, axis_z = 0;
+    float window_width = 600.f;
+    float window_height = 600.f;
     glm::mat4 identity_matrix = glm::mat4(1.0f);
-
-    float x = 0, y = 0, z = 0, scale_x = 0.5, scale_y = 0.5, scale_z = 0.5, theta = 0, axis_x = 1, axis_y = 0, axis_z = 0;
-
     GLFWwindow* window;
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
-    float window_width = 600.f;
-    float window_height = 600.f;
-
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(window_width, window_height, "JI Lalusin", NULL, NULL);
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         return -1;
     }
@@ -137,48 +121,10 @@ int main(void)
 
     glViewport(0, 0, window_width, window_height);
 
-    int img_width, // width of texture
-        img_height, // height of texture
-        colorChannels; // number of color channels
-
-    // fix the flipped texture
+    int img_width, img_height, colorChannels;
     stbi_set_flip_vertically_on_load(true);
-
     // load the texture and fill out the variables
-    unsigned char* tex_bytes =
-        stbi_load("3D/brickwall.jpg", // texture path
-            &img_width, // fills out the width
-            &img_height, // fills out the height
-            &colorChannels,// fills out the color channel
-            0);
-
-    // assign the loaded texture to the OpenGL reference
-    glTexImage2D(GL_TEXTURE_2D,
-        0, // texture 0
-        GL_RGB, // target color format of the texture
-        img_width, // texture width
-        img_height, // texture height
-        0,
-        GL_RGB, // color format of the texture
-        GL_UNSIGNED_BYTE,
-        tex_bytes); // loaded texture in bytes
-
-    // generate the mipmaps to the current texture
-    glGenerateMipmap(GL_TEXTURE_2D);
-    // free up the loaded bytes
-    stbi_image_free(tex_bytes);
-
-    int img_width2, img_height2, colorChannel2;
-    stbi_set_flip_vertically_on_load(true);
-
-    // load the texture and fill out the variables
-    unsigned char* normal_bytes =
-        stbi_load("3D/brickwall_normal.jpg", // texture path
-            &img_width, // fills out the width
-            &img_height, // fills out the height
-            &colorChannels,// fills out the color channel
-            0);
-
+    unsigned char* tex_bytes = stbi_load("3D/brickwall.jpg", &img_width, &img_height, &colorChannels, 0);
     // OpenGL reference to the texture
     GLuint texture;
     // generate a reference
@@ -187,30 +133,27 @@ int main(void)
     glActiveTexture(GL_TEXTURE0);
     // bind out next tasks to tex0 to our current refernce similar to what wer're doing to VBOs
     glBindTexture(GL_TEXTURE_2D, texture);
+    // assign the loaded texture to the OpenGL reference
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_width, img_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_bytes);
+    // generate the mipmaps to the current texture
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // free up the loaded bytes
+    stbi_image_free(tex_bytes);
+    // enable depth testing
+    glEnable(GL_DEPTH_TEST);
 
-    GLuint norm_tex; // declare gluint for normal texture
+    int img_width2, img_height2, colorChannels2;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* normal_bytes = stbi_load("3D/brickwall_normal.jpg", &img_width2, &img_height2, &colorChannels2, 0);
+    GLuint norm_tex;
     glGenTextures(1, &norm_tex);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, norm_tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-    glTexImage2D(GL_TEXTURE_2D,
-        0, // texture 0
-        GL_RGB, // target color format of the texture
-        img_width2, // texture width
-        img_height2, // texture height
-        0,
-        GL_RGB, // color format of the texture
-        GL_UNSIGNED_BYTE,
-        normal_bytes); // loaded texture in bytes
-
-    // generate the mipmaps to the current texture
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGB, img_width2, img_height2, 0, GL_RGB, GL_UNSIGNED_BYTE, normal_bytes);
     glGenerateMipmap(GL_TEXTURE_2D);
-    // free up the loaded bytes
     stbi_image_free(normal_bytes);
-
-    // enable depth testing
     glEnable(GL_DEPTH_TEST);
 
     // set the callback function to the window
@@ -304,14 +247,14 @@ int main(void)
     glDeleteShader(fragShaderSkybox);
 
     /*
-  7--------6
- /|       /|
-4--------5 |
-| |      | |
-| 3------|-2
-|/       |/
-0--------1
-*/
+      7--------6
+     /|       /|
+    4--------5 |
+    | |      | |
+    | 3------|-2
+    |/       |/
+    0--------1
+    */
 //Vertices for the cube
     float skyboxVertices[]{
         -1.f, -1.f, 1.f, //0
@@ -349,17 +292,9 @@ int main(void)
     vector<tinyobj::shape_t> shapes;
     vector<tinyobj::material_t> material;
     string warning, error;
-
     tinyobj::attrib_t attributes;
 
-    bool success = tinyobj::LoadObj(
-        &attributes,
-        &shapes,
-        &material,
-        &warning,
-        &error,
-        path.c_str()
-    );
+    bool success = tinyobj::LoadObj(&attributes, &shapes, &material, &warning, &error, path.c_str());
 
     GLfloat UV[]{
         0.f, 1.f,
@@ -372,21 +307,14 @@ int main(void)
         0.f, 0.f
     };
 
-    // get the EBO indices array 
     vector<GLuint> mesh_indices;
-    for (int i = 0; i < shapes[0].mesh.indices.size(); i++) {
-        mesh_indices.push_back(
-            shapes[0].mesh.indices[i].vertex_index
-        );
-    }
-
     vector<glm::vec3> tangents;
     vector<glm::vec3> bitangents;
 
     for (int i = 0; i < shapes[0].mesh.indices.size(); i += 3) {
         tinyobj::index_t vData1 = shapes[0].mesh.indices[i];
-        tinyobj::index_t vData2 = shapes[0].mesh.indices[i+1];
-        tinyobj::index_t vData3 = shapes[0].mesh.indices[i+2];
+        tinyobj::index_t vData2 = shapes[0].mesh.indices[i + 1];
+        tinyobj::index_t vData3 = shapes[0].mesh.indices[i + 2];
 
         glm::vec3 v1 = glm::vec3(
             attributes.vertices[vData1.vertex_index * 3],
@@ -419,7 +347,6 @@ int main(void)
 
         glm::vec3 deltaPos1 = v2 - v1;
         glm::vec3 deltaPos2 = v3 - v1;
-
         glm::vec2 deltaUV1 = uv2 - uv1;
         glm::vec2 deltaUV2 = uv3 - uv1;
 
@@ -481,123 +408,36 @@ int main(void)
         0,1,2
     };
 
-    GLuint VAO, VBO, EBO, VBO_UV;
+    GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    //glGenBuffers(1, &EBO);
-    //glGenBuffers(1, &VBO_UV);
-
     // currently editing VAO = null
     glBindVertexArray(VAO);
     // currently editing VBO = null
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
     // new array of vertex data in the VBO
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(GLfloat) * fullVertexData.size(), // size of the whole array in bytes
-        fullVertexData.data(), // data of the array
-        GL_DYNAMIC_DRAW
-    );
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * fullVertexData.size(), fullVertexData.data(), GL_DYNAMIC_DRAW);
     // how to get position data from our array
-    glVertexAttribPointer(
-        0,  // index 0 is vertex position
-        3,  // position is 3 floats (x, y, z)
-        GL_FLOAT,   // data type of array
-        GL_FALSE,
-        14 * sizeof(float),
-        (void*)0
-    );
-
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     // since our UV starts at index 3, or the 4th index of our vertex data
     GLintptr normPtr = 3 * sizeof(float);
-
     // how to get normals data from our array
-    glVertexAttribPointer(
-        2,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        14 * sizeof(float),  // vertex data has 5 floats in it (x, y, z, u, v)
-        (void*)normPtr    // offset
-    );
-
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)normPtr);
     // since our UV starts at index 3, or the 4th index of our vertex data
-    GLintptr uvPtr = 7 * sizeof(float);
-
+    GLintptr uvPtr = 6 * sizeof(float);
     // how to get UV data from our array
-    glVertexAttribPointer(
-        6,  // index 2 is tex coords / UV
-        2,  // UV is 2 floats (u, v)
-        GL_FLOAT,   // data type of array
-        GL_FALSE,
-        14 * sizeof(float),  // vertex data has 5 floats in it (x, y, z, u, v)
-        (void*)uvPtr    // offset
-    );
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)uvPtr);
 
     GLintptr tangentPtr = 8 * sizeof(float);
     GLintptr bitangentPtr = 11 * sizeof(float);
-
-    glVertexAttribPointer(
-        3,  // 3 = tangent
-        3,  // t (xyz)
-        GL_FLOAT,   // data type of array
-        GL_FALSE,
-        14 * sizeof(float),
-        (void*)tangentPtr
-    );
-
-    glVertexAttribPointer(
-        4,  // 4 = bitangent
-        3,  // b (xyz)
-        GL_FLOAT,   // data type of array
-        GL_FALSE,
-        14 * sizeof(float),
-        (void*)bitangentPtr
-    );
-
-    /*glBufferData(GL_ARRAY_BUFFER,
-        sizeof(GL_FLOAT) * attributes.vertices.size(),
-        &attributes.vertices[0], // attributes.vertices.data()
-        GL_STATIC_DRAW);
-
-    glVertexAttribPointer(
-        0,
-        3,  // x y z
-        GL_FLOAT,
-        GL_FALSE,
-        3 * sizeof(float), // array of 3 floats
-        (void*)0
-    );
-
-    // currently editing VBO = VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // currently editing VBO = EBO
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(GLuint) * mesh_indices.size(),
-        &mesh_indices[0], // mesh_indices.data()
-        GL_STATIC_DRAW);*/
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)tangentPtr);
+    glVertexAttribPointer(4, 3,  GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)bitangentPtr);
 
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(4);
     glEnableVertexAttribArray(3);
-
-    // bind the UV buffer
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO_UV);
-
-    /*glBufferData(GL_ARRAY_BUFFER,
-        sizeof(GLfloat) * (sizeof(UV) / sizeof(UV[0])), // float * size of the UV array
-        &UV[0], // the UV array earlier
-        GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(
-        2, // 2 for the UV or tex coords
-        2, // UV
-        GL_FLOAT, // type of array
-        GL_FALSE,
-        2 * sizeof(float), // every 2 index
-        (void*)0
-    );*/
 
     unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -638,24 +478,11 @@ int main(void)
         stbi_set_flip_vertically_on_load(false);
         unsigned char* data = stbi_load(facesSkybox[i].c_str(), &w, &h, &skyCChannel, 0);
         if (data) {
-            glTexImage2D(
-                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0,
-                GL_RGB,
-                w,
-                h,
-                0,
-                GL_RGB,
-                GL_UNSIGNED_BYTE,
-                data
-            );
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
     }
     stbi_set_flip_vertically_on_load(true);
-
-    // enable 2 
-    glEnableVertexAttribArray(2);
 
     // currently editing VBO = VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -675,7 +502,7 @@ int main(void)
     );*/
 
     glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(120.f), // FOV
+        glm::radians(60.f), // FOV
         window_height / window_width, // aspect ratio
         0.1f, // znear > 0
         100.f // zfar
@@ -692,7 +519,7 @@ int main(void)
     // world's up direction; normally just 1 in Y
     glm::vec3 WorldUp = glm::vec3(0, 1.0f, 0);
     // camera's center
-    glm::vec3 Center = glm::vec3(0, 3.f, 0);
+    glm::vec3 Center = glm::vec3(0, 3.0f, 0);
     // get the forward
     glm::vec3 F = glm::vec3(Center - cameraPos);
     // normalize the forward
@@ -722,18 +549,17 @@ int main(void)
     //glm::mat4 viewMatrix = cameraOrientation * cameraPositionMatrix;
     glm::mat4 viewMatrix = glm::lookAt(cameraPos, Center, WorldUp);
 
-    glm::vec3 lightPos = glm::vec3(-10, 3, 0);
+    glm::vec3 lightPos = glm::vec3(4, 5, 0);
     glm::vec3 lightColor = glm::vec3(1, 1, 1);
 
     float ambientStr = 0.1f;
     glm::vec3 ambientColor = lightColor;
 
-    float specStr = -0.5f;
-    float specPhong = 0.0f;
+    float specStr = 0.5f;
+    float specPhong = 16;
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, // source factor
-        GL_ONE_MINUS_SRC_ALPHA); // destination factor
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -741,65 +567,41 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        x = x_mod;
+        /*x = x_mod;
         y = y_mod;
         z = z_mod;
         theta = theta_mod;
         axis_x = axis_x_mod;
         axis_y = axis_y_mod;
         scale_x = scale_x_mod;
-        scale_y = scale_y_mod;
+        scale_y = scale_y_mod;*/
+
+        theta += 0.04f;
 
         // Start with the translation matrix
-        glm::mat4 transformation_matrix = glm::translate(
-            identity_matrix,
-            glm::vec3(x, y, z)
-        );
+        glm::mat4 transformation_matrix = glm::translate(identity_matrix, glm::vec3(x, y, z));
         // multiply the resulting matrix with the scale matrix
-        transformation_matrix = glm::scale(
-            transformation_matrix,
-            glm::vec3(scale_x, scale_y, scale_z)
-        );
+        transformation_matrix = glm::scale(transformation_matrix, glm::vec3(scale_x, scale_y, scale_z));
         // finally multiply it with the rotation matrix
-        transformation_matrix = glm::rotate(
-            transformation_matrix,
-            glm::radians(theta),
-            glm::normalize(glm::vec3(axis_x, axis_y, axis_z))
-        );
+        transformation_matrix = glm::rotate(transformation_matrix, glm::radians(theta), glm::normalize(glm::vec3(axis_x, axis_y, axis_z)));
 
         unsigned int projectionLoc = glGetUniformLocation(shaderProg, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
         unsigned int transformLoc = glGetUniformLocation(shaderProg, "transform");
-        glUniformMatrix4fv(transformLoc, // address of the transform variable
-            1, // how many matrices to assign
-            GL_FALSE, // transpose
-            glm::value_ptr(transformation_matrix)); // pointer to the matrix
-
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transformation_matrix));
         unsigned int viewLoc = glGetUniformLocation(shaderProg, "view");
-        glUniformMatrix4fv(viewLoc, // address of the variable
-            1, // how many values are we modifying
-            GL_FALSE,
-            glm::value_ptr(viewMatrix)); // view matrix
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         glUseProgram(skyboxShaderProg);
-
         glm::mat4 sky_view = glm::mat4(1.f);
         sky_view = glm::mat4(glm::mat3(viewMatrix));
 
         unsigned int skyboxViewLoc = glGetUniformLocation(skyboxShaderProg, "view");
-        glUniformMatrix4fv(skyboxViewLoc, // address of the variable
-            1, // how many values are we modifying
-            GL_FALSE,
-            glm::value_ptr(sky_view)); // view matrix
-
+        glUniformMatrix4fv(skyboxViewLoc, 1, GL_FALSE, glm::value_ptr(sky_view));
         unsigned int skyboxProjLoc = glGetUniformLocation(skyboxShaderProg, "projection");
-        glUniformMatrix4fv(skyboxProjLoc, // address of the variable
-            1, // how many values are we modifying
-            GL_FALSE,
-            glm::value_ptr(projectionMatrix)); // view matrix
+        glUniformMatrix4fv(skyboxProjLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -821,15 +623,11 @@ int main(void)
         glUniform1i(texBLoc, 0);
 
         glActiveTexture(GL_TEXTURE1);
-        // get the location of tex 0 in the fragment shader
         GLuint tex1Loc = glGetUniformLocation(shaderProg, "norm_tex");
-        // tell openGL to use the texture
         glBindTexture(GL_TEXTURE_2D, norm_tex);
-        // use the texture at 0
         glUniform1i(tex1Loc, 1);
 
-
-        /*GLuint lightAddress = glGetUniformLocation(shaderProg, "lightPos");
+        GLuint lightAddress = glGetUniformLocation(shaderProg, "lightPos");
         glUniform3fv(lightAddress, 1, glm::value_ptr(lightPos));
         GLuint lightColorAddress = glGetUniformLocation(shaderProg, "lightColor");
         glUniform3fv(lightColorAddress, 1, glm::value_ptr(lightColor));
@@ -844,24 +642,19 @@ int main(void)
         GLuint specStrAddress = glGetUniformLocation(shaderProg, "specStr");
         glUniform1f(specStrAddress, specStr);
         GLuint specPhongAddress = glGetUniformLocation(shaderProg, "specPhong");
-        glUniform1f(specPhongAddress, specPhong);*/
-
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        //glDrawElements(GL_TRIANGLES, mesh_indices.size(), GL_UNSIGNED_INT, 0);
+        glUniform1f(specPhongAddress, specPhong);
 
         // draw using uv
-        glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 8);
+        glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 14);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
-
         /* Poll for and process events */
         glfwPollEvents();
     }
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;

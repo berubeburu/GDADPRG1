@@ -1,14 +1,14 @@
 #version 330 core
 
-layout(location = 1) in vec3 vertexNormal;
-out vec3 normCoord;
-out vec3 fragPos;
-
 layout(location = 0) in vec3 aPos;
 layout(location = 2) in vec2 aTex;
 
 layout(location = 3) in vec3 m_tan;
 layout(location = 4) in vec3 m_btan;
+
+layout(location = 1) in vec3 vertexNormal;
+out vec3 normCoord;
+out vec3 fragPos;
 
 out mat3 TBN;
 
